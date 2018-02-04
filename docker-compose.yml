@@ -1,0 +1,37 @@
+# Flask/docker-compose.yml
+version: '3'
+
+services:
+  example_app:
+    container_name: example_app
+    hostname: example_app
+    build: ./example_app
+    environment:
+      APP_NAME: "Flask example app"
+      FLASK_DEBUG: "True"
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./example_app:/flask_app
+    restart: on-failure
+    networks:
+      - flask_network
+
+  # app2_back:
+  #   container_name: app2_back
+  #   hostname: app2_back
+  #   build: ./app2
+  #   environment:
+  #     APP_NAME: "Aplicación 2 - Back End"
+  #     FLASK_DEBUG: "True"
+  #   ports:
+  #     - "5002:5000"
+  #   volumes:
+  #     - ./app2:/flask_app
+  #   restart: on-failure
+  #   networks:
+  #     - flask_network
+
+networks:
+  flask_network:
+    driver: bridge
