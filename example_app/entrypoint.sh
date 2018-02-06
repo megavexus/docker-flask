@@ -23,9 +23,9 @@ if [ ! -f /debug0 ]; then
 fi
 
 if [ -e /debug1 ]; then
-	echo "Running app in debug mode!"
-	python $APP_DIR/app/__init__.py
+ 	echo "Running app in debug mode!"
 else
-	echo "Running app in production mode!"
-	python $APP_DIR/app/__init__.py
+ 	echo "Running app in production mode!"
 fi
+
+python $APP_FILE_MAIN

@@ -15,6 +15,7 @@ To use it, we only have to get this structure in our applications:
 example_app
 ├── app
 │   └── __init__.py
+├── requirements_image.txt
 └── requirements.txt
 ```
 
@@ -27,7 +28,7 @@ $ sudo docker run --name flask_app --restart=always \
         -d megavexus/alpine-flask
 ```
 
-- `-v /path/to/app/:/app` - specifies the path to the folder containing a file named app.py, which should be your main application
+- `-v /path/to/app/:/flask_app` - specifies the path to the folder containing a file named app.py, which should be your main application
 
 - `-p 5000:5000` - the image exposes port 80, in this example it is mapped to port 80 on the host
 
@@ -67,8 +68,7 @@ services:
   app1:
     container_name: app1
     hostname: app1
-    build: ./app1
-    image: megavexus/alpine-python
+    image: megavexus/alpine-flask
     environment:
       APP_NAME: "Flask example app"
       FLASK_DEBUG: "True"
@@ -83,8 +83,7 @@ services:
    app2:
      container_name: app2
      hostname: app2
-     build: ./app2
-     image: megavexus/alpine-python
+     image: megavexus/alpine-flask
      environment:
        APP_NAME: "Example test 2"
        FLASK_DEBUG: "True"

@@ -19,8 +19,7 @@ services:
 
   app2_back:
     container_name: app2_back
-    hostname: app2_back
-    build: ./app2
+    image: megavexus/alpine-flask:latest
     environment:
       APP_NAME: "Aplicación 2 - Back End"
       FLASK_DEBUG: "True"
