@@ -1,44 +1,56 @@
 FROM python:2.7-alpine
 MAINTAINER Javier Gutiérrez "nexus.megavexus@gmail.com"
 
-ENV INSTALL_PATH /flask_app
-RUN mkdir -p $INSTALL_PATH
-
-WORKDIR $INSTALL_PATH
-
-COPY requirements.txt requirements.txt
 
 # This install the dependencies and remove the temporal and garbase data
 # If you have more dependencies, you can put it in the second line, behind 'build-base'
 RUN apk add --no-cache --virtual .build-deps \
-        build-base \
-    && pip install -r requirements.txt \
-    && find /usr/local \
-        \( -type d -a -name test -o -name tests \) \
-        -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-        -exec rm -rf '{}' + \
+    build-base \
     && runDeps="$( \
-        scanelf --needed --nobanner --recursive /usr/local \
-        | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
-        | sort -u \
-        | xargs -r apk info --installed \
-        | sort -u \
-        )" \
+    scanelf --needed --nobanner --recursive /usr/local \
+    | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+    | sort -u \
+    | xargs -r apk info --installed \
+    | sort -u \
+    )" \
     && apk add --virtual .rundeps $runDeps \
     && apk del .build-deps
 
-COPY . .
+ENV APP_DIR /flask_app
+ENV APP_FILE_MAIN app/__init__.py
+RUN mkdir -p $APP_DIR
 
-EXPOSE 5000
+VOLUME [${APP_DIR}]
+WORKDIR $APP_DIR
 
-# Script for install new dependencies
-RUN printf "#!/bin/sh\npip install -r requirements.txt \
+# Script for install new python/flask dependencies
+RUN printf "#!/bin/sh\n \
+    pip install -r requirements.txt \
     && find /usr/local \
-        \( -type d -a -name test -o -name tests \) \
-        -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-        -exec rm -rf '{}'" \
+    \( -type d -a -name test -o -name tests \) \
+    -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
+    -exec rm -rf '{}'"  \
     > /usr/bin/install_requirements && \
     chmod +x /usr/bin/install_requirements
 
-ENTRYPOINT ["python"]
-CMD ["app/__init__.py"]
+# Script for install new alpine packages
+RUN printf "#!/bin/sh\n \
+    apk add --no-cache --virtual .build-deps $(cat requirements_image.txt) \
+    && runDeps=\"$( \
+    scanelf --needed --nobanner --recursive /usr/local \
+    | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+    | sort -u \
+    | xargs -r apk info --installed \
+    | sort -u \
+    )\" \
+    && apk add --virtual .rundeps $runDeps \
+    && apk del .build-deps"  \
+    > /usr/bin/install_packages && \
+    chmod +x /usr/bin/install_packages
+
+EXPOSE 5000
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod ug+x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

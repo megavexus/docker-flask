@@ -17,20 +17,20 @@ services:
     networks:
       - flask_network
 
-  # app2_back:
-  #   container_name: app2_back
-  #   hostname: app2_back
-  #   build: ./app2
-  #   environment:
-  #     APP_NAME: "Aplicación 2 - Back End"
-  #     FLASK_DEBUG: "True"
-  #   ports:
-  #     - "5002:5000"
-  #   volumes:
-  #     - ./app2:/flask_app
-  #   restart: on-failure
-  #   networks:
-  #     - flask_network
+  app2_back:
+    container_name: app2_back
+    hostname: app2_back
+    build: ./app2
+    environment:
+      APP_NAME: "Aplicación 2 - Back End"
+      FLASK_DEBUG: "True"
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./app2:/flask_app
+    restart: on-failure
+    networks:
+      - flask_network
 
 networks:
   flask_network:
